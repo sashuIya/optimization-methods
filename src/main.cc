@@ -1,6 +1,6 @@
-#include "Vector.hpp"
-#include "LennardJones.hpp"
-#include "Optimizers.hpp"
+#include "Vector.h"
+#include "LennardJones.h"
+#include "Optimizers.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>

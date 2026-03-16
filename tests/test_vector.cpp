@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "Vector.hpp"
+#include "Vector.h"
 
 TEST(VectorTest, BasicOps) {
     Vector v1({1.0, 2.0, 3.0});

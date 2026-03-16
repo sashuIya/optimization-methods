@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "LennardJones.hpp"
+#include "LennardJones.h"
 #include <cmath>
 
 TEST(PhysicsTest, BasicEnergy) {

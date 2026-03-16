@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "Optimizers.hpp"
+#include "Optimizers.h"
 #include <cmath>
 
 TEST(OptimizerTest, GoldenSectionSearch) {
