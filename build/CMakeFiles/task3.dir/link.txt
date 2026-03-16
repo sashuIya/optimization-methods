@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/task3.dir/link.d CMakeFiles/task3.dir/src/main.cc.o CMakeFiles/task3.dir/src/Vector.cc.o CMakeFiles/task3.dir/src/LennardJones.cc.o CMakeFiles/task3.dir/src/Optimizers.cc.o -o task3
