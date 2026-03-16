@@ -1,0 +1,8 @@
+build/
+.cache/
+*.o
+*.a
+task3
+unit_tests
+output.txt
+baseline_output.txt
