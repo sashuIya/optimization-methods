@@ -1,78 +1,54 @@
-Overview
---------
+# Optimization Methods: Lennard-Jones Potential Minimizer
 
-    This program provides Dynamic (gradient) and Pawlle's (not gradient) methods 
-    for multi-variable function optimization
+This project implements numerical optimization methods to find the minimum energy configuration of $n$ points in $m$-dimensional space, governed by the Lennard-Jones potential.
 
-    Consider next problem:
-    There are `n` points in `m`-dimension space. 
-    The potential energy of pair of poits `(p_i, p_j)` is:
-      U_ij = (1/r_ij)^12 - (1/r_ij)^6
-    Total energy:
-      U_tot = Sum U_ij, i < j
-    Average energy for point:
-      U_at = 1/n U_tot
+## Problem Overview
 
-    We want to minimaze `U_at`.
-    Considering `n m` vector as an argument for function, we are looking for best coordinates of points.
+The potential energy between a pair of points $p_i$ and $p_j$ is defined as:
+$$U_{ij} = \left(\frac{1}{r_{ij}}\right)^{12} - \left(\frac{1}{r_{ij}}\right)^6$$
+where $r_{ij}$ is the Euclidean distance between points.
 
-    Actually, it finds only local minimums. For better results both methods are used.
+The goal is to minimize the average energy per point:
+$$U_{at} = \frac{1}{n} \sum_{i < j} U_{ij}$$
 
-    `output.txt` is a results of applying both methods
-    `output1.txt` is a results of Pawlle's method
-    `output2.txt` is a results of Dynamic method
+## Optimization Methods
 
-Some information about methods
-------
-    Pawlle's method:
-    s = {e1, e2, ..., e_q} -- set of basis vectors (for example, q = n m in this task)
-    answer -- current answer
-    prev_answer -- answer on the previous step
+The solver utilizes two complementary methods to navigate the potential landscape and avoid local minima:
 
-    do {
-    prev_answer = answer
-    for i = 1 to q
-      lambda = argmin_lambda(answer + lambda * s_i)
-      answer = answer + lambda * s_i
+1.  **Dynamic Method (Gradient Descent with Momentum)**: Uses analytical gradients of the potential function.
+2.  **Powell's Method**: A derivative-free optimization algorithm that performs line searches along a set of conjugate directions.
+3.  **Golden Section Search**: Used for robust 1D line minimization.
 
-    for i = 1 to q-1
-      s_i = s_{i+1}
+## Quick Start
 
-    s_q = (answer - prev_answer)
-    s_q /= norm(s_q)
-    lambda = argmin_lambda(answer + lambda * s_i)
-    answer = answer + lambda * s_i
+### Prerequisites
+- CMake >= 3.14
+- C++17 compliant compiler (GCC, Clang, MSVC)
 
-    step++
-    if (step > q)
-      s = {e1, e2, ..., e_q}
-    } while (abs(answer - prev_answer) / answer > eps)
+### Build
+```bash
+mkdir build && cd build
+cmake ..
+make
+```
 
-    Moreover it uses some tricks with loops for better converge.
+### Usage
+Run the solver for a range of points ($n$) and dimensions ($m$):
+```bash
+./task3 [n_start [n_end [m_start [m_end]]]]
+# Example: solve only for n=5, m=3
+./task3 5 5 3 3
+```
 
-Usage:
-------
+### Testing
+```bash
+./unit_tests
+```
 
-1. `make`
-2. output.txt - for results
+## Project Structure
+- `src/`: Core implementation and mathematical primitives.
+- `tests/`: Unit tests using Google Test.
+- `CMakeLists.txt`: Build configuration.
 
-License
--------
-    Copyright (C) 2013  Alexander Lapin
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-	
-Contacts:
----------
-Alexander Lapin, lapinra@gmail.com
+## License
+Licensed under the [GNU GPL v3](LICENSE).
