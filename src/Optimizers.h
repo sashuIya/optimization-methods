@@ -1,15 +1,17 @@
-#ifndef OPTIMIZERS_HPP
-#define OPTIMIZERS_HPP
+#ifndef OPTIMIZATION_METHODS_SRC_OPTIMIZERS_H_
+#define OPTIMIZATION_METHODS_SRC_OPTIMIZERS_H_
 
-#include "Vector.h"
-#include "LennardJones.h"
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 #include <functional>
 
+#include "LennardJones.h"
+#include "Vector.h"
+
 class LineSearch {
-public:
-  static double gold_method(std::function<double(double)> f, double a, double c, double eps = 1e-8) {
+ public:
+  static double GoldMethod(std::function<double(double)> f, double a, double c,
+                           double eps = 1e-8) {
     double r = (3.0 - std::sqrt(5.0)) / 2.0;
     double b = a + r * (c - a);
     double y_b = f(b);
@@ -30,7 +32,8 @@ public:
     return c;
   }
 
-  static void get_lambda_segment(std::function<double(double)> f, double d, double& a, double& c) {
+  static void GetLambdaSegment(std::function<double(double)> f, double d,
+                               double& a, double& c) {
     double left = 0.0, middle = 0.0, right = 0.0;
     double y_curr = f(0.0);
     double y_next = y_curr;
@@ -50,17 +53,18 @@ public:
     c = right;
   }
 
-  static double get_best_lambda(std::function<double(double)> f, double delta = 1e-6) {
+  static double GetBestLambda(std::function<double(double)> f,
+                              double delta = 1e-6) {
     double a, c;
-    get_lambda_segment(f, delta, a, c);
-    double lambda1 = gold_method(f, a, c);
+    GetLambdaSegment(f, delta, a, c);
+    double lambda1 = GoldMethod(f, a, c);
 
-    get_lambda_segment(f, -delta, a, c);
-    double lambda2 = gold_method(f, a, c);
+    GetLambdaSegment(f, -delta, a, c);
+    double lambda2 = GoldMethod(f, a, c);
 
     double best_lambda = 0.0;
     double best_U = f(0.0);
-    
+
     double u1 = f(lambda1);
     if (u1 < best_U) {
       best_U = u1;
@@ -77,8 +81,9 @@ public:
 };
 
 class PowellOptimizer {
-public:
-  static Vector optimize(const LennardJonesSystem& system, Vector x, double eps = 1e-8) {
+ public:
+  static Vector Optimize(const LennardJonesSystem& system, Vector x,
+                         double eps = 1e-8) {
     int dim = x.size();
     std::vector<Vector> s(dim);
     for (int i = 0; i < dim; ++i) {
@@ -89,21 +94,25 @@ public:
     double u_prev;
     int reset_count = 0;
     do {
-      u_prev = system.compute_average_energy(x);
+      u_prev = system.ComputeAverageEnergy(x);
 
       for (int k = 0; k < 3 * dim; ++k) {
         Vector prev_x = x;
         for (int i = 0; i < dim; ++i) {
-          auto f = [&](double lambda) { return system.compute_total_energy(x + lambda * s[i]); };
-          double lambda = LineSearch::get_best_lambda(f);
+          auto f = [&](double lambda) {
+            return system.ComputeTotalEnergy(x + lambda * s[i]);
+          };
+          double lambda = LineSearch::GetBestLambda(f);
           x += lambda * s[i];
         }
 
         for (int i = 0; i < dim - 1; ++i) s[i] = s[i + 1];
-        s[dim - 1] = Vector::normed_residual(x, prev_x, eps);
+        s[dim - 1] = Vector::NormedResidual(x, prev_x, eps);
 
-        auto f = [&](double lambda) { return system.compute_total_energy(x + lambda * s[dim - 1]); };
-        double lambda = LineSearch::get_best_lambda(f);
+        auto f = [&](double lambda) {
+          return system.ComputeTotalEnergy(x + lambda * s[dim - 1]);
+        };
+        double lambda = LineSearch::GetBestLambda(f);
         x += lambda * s[dim - 1];
 
         if (++reset_count > dim) {
@@ -114,15 +123,17 @@ public:
           reset_count = 0;
         }
       }
-    } while (std::abs((system.compute_average_energy(x) - u_prev) / system.compute_average_energy(x)) > eps);
+    } while (std::abs((system.ComputeAverageEnergy(x) - u_prev) /
+                      system.ComputeAverageEnergy(x)) > eps);
 
     return x;
   }
 };
 
 class DynamicOptimizer {
-public:
-  static Vector optimize(const LennardJonesSystem& system, Vector x, double eps = 1e-8) {
+ public:
+  static Vector Optimize(const LennardJonesSystem& system, Vector x,
+                         double eps = 1e-8) {
     int dim = x.size();
     double dt = 0.085;
     double beta = 0.998;
@@ -130,10 +141,10 @@ public:
 
     double u_prev;
     do {
-      u_prev = system.compute_average_energy(x);
-      Vector grad = system.compute_gradient(x);
+      u_prev = system.ComputeAverageEnergy(x);
+      Vector grad = system.ComputeGradient(x);
 
-      double g_norm = grad.norm();
+      double g_norm = grad.Norm();
       if (g_norm > 4.0) {
         grad /= (100.0 * g_norm);
       }
@@ -141,10 +152,11 @@ public:
       v = v * beta - dt * grad;
       x += dt * v;
 
-    } while (std::abs((system.compute_average_energy(x) - u_prev) / system.compute_average_energy(x)) > eps);
+    } while (std::abs((system.ComputeAverageEnergy(x) - u_prev) /
+                      system.ComputeAverageEnergy(x)) > eps);
 
     return x;
   }
 };
 
-#endif // OPTIMIZERS_HPP
+#endif  // OPTIMIZATION_METHODS_SRC_OPTIMIZERS_H_

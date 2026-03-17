@@ -1,11 +1,11 @@
-#ifndef VECTOR_HPP
-#define VECTOR_HPP
+#ifndef OPTIMIZATION_METHODS_SRC_VECTOR_H_
+#define OPTIMIZATION_METHODS_SRC_VECTOR_H_
 
-#include <vector>
 #include <cmath>
+#include <vector>
 
 class Vector {
-public:
+ public:
   Vector() = default;
   explicit Vector(int size, double value = 0.0) : data_(size, value) {}
   Vector(const std::vector<double>& data) : data_(data) {}
@@ -59,23 +59,24 @@ public:
     return lhs;
   }
 
-  double norm_sq() const {
+  double NormSq() const {
     double res = 0.0;
     for (double x : data_) res += x * x;
     return res;
   }
 
-  double norm() const { return std::sqrt(norm_sq()); }
+  double Norm() const { return std::sqrt(NormSq()); }
 
-  static Vector normed_residual(const Vector& a, const Vector& b, double eps = 1e-8) {
+  static Vector NormedResidual(const Vector& a, const Vector& b,
+                               double eps = 1e-8) {
     Vector res = a - b;
-    double n = res.norm();
+    double n = res.Norm();
     if (n > eps) res /= n;
     return res;
   }
 
-private:
+ private:
   std::vector<double> data_;
 };
 
-#endif // VECTOR_HPP
+#endif  // OPTIMIZATION_METHODS_SRC_VECTOR_H_
